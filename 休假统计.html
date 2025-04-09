@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>休假报名和统计系统</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .form-section, .stats-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .chart-container {
+            margin-top: 20px;
+            height: 300px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>休假报名和统计系统</h1>
+        
+        <div class="form-section">
+            <h2>休假申请</h2>
+            <form id="leaveForm">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" required>
+                    <div id="nameError" class="error"></div>
+                </div>
+                
+                
+                <div class="form-group">
+                    <label for="leaveType">休假类型</label>
+                    <select id="leaveType" required>
+                        <option value="">请选择休假类型</option>
+                        <option value="年假">年假</option>
+                        <option value="病假">病假</option>
+                        <option value="事假">事假</option>
+                        <option value="调休假">调休假</option>
+                        <option value="婚假">婚假</option>
+                        <option value="产假">产假</option>
+                    </select>
+                    <div id="leaveTypeError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="startDate">开始日期</label>
+                    <input type="date" id="startDate" required>
+                    <div id="startDateError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="endDate">结束日期</label>
+                    <input type="date" id="endDate" required>
+                    <div id="endDateError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="days">休假天数</label>
+                    <input type="number" id="days" min="0.5" step="0.5" required>
+                    <div id="daysError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reason">休假原因</label>
+                    <textarea id="reason" rows="3"></textarea>
+                </div>
+                
+                <button type="submit">提交申请</button>
+            </form>
+        </div>
+        
+        <div class="stats-section">
+            <h2>休假统计</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>总申请数</h3>
+                    <div id="totalApplications" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>总休假天数</h3>
+                    <div id="totalLeaveDays" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>平均休假天数</h3>
+                    <div id="averageLeaveDays" class="stat-value">0</div>
+                </div>
+            </div>
+            
+            <h3>部门休假统计</h3>
+            <table id="departmentStats">
+                <thead>
+                    <tr>
+                        <th>部门</th>
+                        <th>申请数</th>
+                        <th>总天数</th>
+                        <th>平均天数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+            
+            <h3>休假类型统计</h3>
+            <table id="leaveTypeStats">
+                <thead>
+                    <tr>
+                        <th>休假类型</th>
+                        <th>申请数</th>
+                        <th>总天数</th>
+                        <th>平均天数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+            
+            <h3>所有休假申请</h3>
+            <table id="allApplications">
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>部门</th>
+                        <th>休假类型</th>
+                        <th>开始日期</th>
+                        <th>结束日期</th>
+                        <th>天数</th>
+                        <th>原因</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 存储所有休假申请
+        let leaveApplications = JSON.parse(localStorage.getItem('leaveApplications')) || [];
+        
+        // 初始化表单
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = today;
+            
+            // 计算天数
+            document.getElementById('startDate').addEventListener('change', calculateDays);
+            document.getElementById('endDate').addEventListener('change', calculateDays);
+            
+            // 表单提交
+            document.getElementById('leaveForm').addEventListener('submit', submitForm);
+            
+            // 初始化统计数据
+            updateStatistics();
+        });
+        
+        // 计算休假天数
+        function calculateDays() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            if (startDate && endDate && startDate <= endDate) {
+                // 计算天数差（包括开始和结束日）
+                const diffTime = endDate - startDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('days').value = diffDays;
+            } else if (startDate > endDate) {
+                document.getElementById('endDateError').textContent = '结束日期不能早于开始日期';
+            } else {
+                document.getElementById('endDateError').textContent = '';
+            }
+        }
+        
+        // 提交表单
+        function submitForm(e) {
+            e.preventDefault();
+            
+            // 清除所有错误信息
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            
+            // 获取表单数据
+            const name = document.getElementById('name').value.trim();
+            const department = document.getElementById('department').value;
+            const leaveType = document.getElementById('leaveType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const days = parseFloat(document.getElementById('days').value);
+            const reason = document.getElementById('reason').value.trim();
+            
+            // 验证表单
+            let isValid = true;
+            
+            if (!name) {
+                document.getElementById('nameError').textContent = '请输入姓名';
+                isValid = false;
+            }
+            
+            if (!department) {
+                document.getElementById('departmentError').textContent = '请选择部门';
+                isValid = false;
+            }
+            
+            if (!leaveType) {
+                document.getElementById('leaveTypeError').textContent = '请选择休假类型';
+                isValid = false;
+            }
+            
+            if (!startDate) {
+                document.getElementById('startDateError').textContent = '请输入开始日期';
+                isValid = false;
+            }
+            
+            if (!endDate) {
+                document.getElementById('endDateError').textContent = '请输入结束日期';
+                isValid = false;
+            } else if (new Date(endDate) < new Date(startDate)) {
+                document.getElementById('endDateError').textContent = '结束日期不能早于开始日期';
+                isValid = false;
+            }
+            
+            if (!days || days <= 0) {
+                document.getElementById('daysError').textContent = '请输入有效的休假天数';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // 创建新的休假申请
+            const newApplication = {
+                id: Date.now(),
+                name,
+                department,
+                leaveType,
+                startDate,
+                endDate,
+                days,
+                reason,
+                submittedAt: new Date().toISOString()
+            };
+            
+            // 添加到数组
+            leaveApplications.push(newApplication);
+            
+            // 保存到本地存储
+            localStorage.setItem('leaveApplications', JSON.stringify(leaveApplications));
+            
+            // 更新统计信息
+            updateStatistics();
+            
+            // 重置表单
+            document.getElementById('leaveForm').reset();
+            
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = today;
+            
+            alert('休假申请提交成功！');
+        }
+        
+        // 更新统计信息
+        function updateStatistics() {
+            // 更新总申请数和总休假天数
+            const totalApplications = leaveApplications.length;
+            const totalLeaveDays = leaveApplications.reduce((sum, app) => sum + app.days, 0);
+            const averageLeaveDays = totalApplications > 0 ? (totalLeaveDays / totalApplications).toFixed(1) : 0;
+            
+            document.getElementById('totalApplications').textContent = totalApplications;
+            document.getElementById('totalLeaveDays').textContent = totalLeaveDays;
+            document.getElementById('averageLeaveDays').textContent = averageLeaveDays;
+            
+            // 部门统计
+            const departmentStats = {};
+            leaveApplications.forEach(app => {
+                if (!departmentStats[app.department]) {
+                    departmentStats[app.department] = {
+                        count: 0,
+                        totalDays: 0
+                    };
+                }
+                departmentStats[app.department].count++;
+                departmentStats[app.department].totalDays += app.days;
+            });
+            
+            const departmentTableBody = Object.entries(departmentStats).map(([dept, stats]) => `
+                <tr>
+                    <td>${dept}</td>
+                    <td>${stats.count}</td>
+                    <td>${stats.totalDays}</td>
+                    <td>${(stats.totalDays / stats.count).toFixed(1)}</td>
+                </tr>
+            `).join('');
+            
+            document.querySelector('#departmentStats tbody').innerHTML = departmentTableBody || '<tr><td colspan="4">暂无数据</td></tr>';
+            
+            // 休假类型统计
+            const leaveTypeStats = {};
+            leaveApplications.forEach(app => {
+                if (!leaveTypeStats[app.leaveType]) {
+                    leaveTypeStats[app.leaveType] = {
+                        count: 0,
+                        totalDays: 0
+                    };
+                }
+                leaveTypeStats[app.leaveType].count++;
+                leaveTypeStats[app.leaveType].totalDays += app.days;
+            });
+            
+            const leaveTypeTableBody = Object.entries(leaveTypeStats).map(([type, stats]) => `
+                <tr>
+                    <td>${type}</td>
+                    <td>${stats.count}</td>
+                    <td>${stats.totalDays}</td>
+                    <td>${(stats.totalDays / stats.count).toFixed(1)}</td>
+                </tr>
+            `).join('');
+            
+            document.querySelector('#leaveTypeStats tbody').innerHTML = leaveTypeTableBody || '<tr><td colspan="4">暂无数据</td></tr>';
+            
+            // 所有申请列表
+            const allApplicationsTableBody = leaveApplications.map(app => `
+                <tr>
+                    <td>${app.name}</td>
+                    <td>${app.department}</td>
+                    <td>${app.leaveType}</td>
+                    <td>${formatDate(app.startDate)}</td>
+                    <td>${formatDate(app.endDate)}</td>
+                    <td>${app.days}</td>
+                    <td>${app.reason || '-'}</td>
+                </tr>
+            `).join('');
+            
+            document.querySelector('#allApplications tbody').innerHTML = allApplicationsTableBody || '<tr><td colspan="7">暂无数据</td></tr>';
+        }
+        
+        // 格式化日期显示
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN');
+        }
+    </script>
+</body>
+</html>
